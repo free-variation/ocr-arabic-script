@@ -1,3 +1,12 @@
+-include config
+
+DEVICE ?= cpu
+
+check-par:
+ifeq (, $(shell which parallel))
+$(error "Parallel is not available.  Please install it before running a parallelized target.")
+endif
+
 install-python-libs: 
 	pip install -r requirements.txt
 
@@ -9,14 +18,17 @@ install-eval-tools:
 
 deps: install-python-libs install-eval-tools
 
-binarize-all:
-	find data/fas -name '*.png' | parallel kraken -i {} {.}-bin.png -f image binarize 
+binarize-all: check-par
+	find data/fas -name '*[0-9].png' | parallel kraken -i {} {.}-bin.png -f image -d ${DEVICE} binarize 
 
 segment-all:
-	find data/fas -name '*-bin.png' | parallel kraken -i {} {.}.json -f image segment -bl --text-direction horizontal-rl --pad 0 0
+	kraken -I data/fas/'*-bin.png' -o '-seg.xml' -f image -d ${DEVICE} -a segment --model models/cBAD_27.mlmodel -bl --text-direction horizontal-rl --pad 0 0
+	sh scripts/fix_paths.sh data/fas/*-bin.xml
 
-segment-all-nopar:
-	kraken -I data/fas/'*-bin.png' -o '.json' -f image segment -bl --text-direction horizontal-rl --pad 0 0
+ocr-all:
+	kraken -I data/fas/'*-seg.xml' -o '-rec.xml' -a -f alto -d ${DEVICE} ocr -m models/arabPersPrBigMixed_best.mlmodel --reorder --text-direction horizontal-tb
 
-segment-all-gpu:
-	kraken -I data/fas/'*-bin.png' -o '.json' -f image -d cuda:0 segment -bl --text-direction horizontal-rl --pad 0 0
+segment-all-par: check-par
+	find data/fas -name '*-bin.png' | parallel kraken -i {} {.}-seg.xml -f image -a segment --model models/cBAD_27.mlmodel -bl --text-direction horizontal-rl --pad 0 0
+	sh scripts/fix_paths.sh data/fas/*-bin.xml
+
