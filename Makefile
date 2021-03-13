@@ -13,7 +13,7 @@ binarize-all:
 	find data/fas -name '*.png' | parallel kraken -i {} {.}-bin.png -f image binarize 
 
 segment-all:
-	find data/fas -name '*-bin.png' | parallel --max-procs 4 kraken -i {} {.}.json -f image segment -bl --text-direction horizontal-rl --pad 0 0
+	find data/fas -name '*-bin.png' | parallel kraken -i {} {.}.json -f image segment -bl --text-direction horizontal-rl --pad 0 0
 
 segment-all-nopar:
 	kraken -I data/fas/'*-bin.png' -o '.json' -f image segment -bl --text-direction horizontal-rl --pad 0 0
