@@ -20,14 +20,14 @@ install-python-libs:
 
 install-eval-tools:
 	rm -rf ocr-evaluation-tools
-	git clone https://github.com/Shreeshrii/ocr-evaluation-tools.git
+	git clone https://github.com/free-variation/ocr-evaluation-tools.git
 	cd ocr-evaluation-tools; make PREFIX=.. install
 	rm -rf ocr-evaluation-tools
 	
 
 deps: install-python-libs install-eval-tools
 
-binarize-all:
+binarize-all: 
 	kraken -I data/fas/'*[0-9].png' -o '-bin.png' -f image -d ${DEVICE} binarize
 
 binarize-all-par: 
@@ -43,7 +43,7 @@ segment-all-par:
 	sh scripts/fix_paths.sh data/fas/*-seg.xml  
 	find data/fas -name '*-seg.xml' | parallel xmllint -o {} --format {}  
 
-ocr-all:
+ocr-all: 
 	kraken -I data/fas/'*-seg.xml' -o '-rec.xml' -a -f alto -d ${DEVICE} ocr -m models/arabPersPrBigMixed_best.mlmodel --reorder --text-direction horizontal-tb --threads ${NUM_THREADS}
 	find data/fas -name '*-rec.xml' | parallel xmllint -o {} --format {}  
 
