@@ -129,4 +129,9 @@ dmypy.json
 .pyre/
 
 .DS_Store
+bin/
+share/
 config
+*-bin*
+*-seg*
+*-rec*

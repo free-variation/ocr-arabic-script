@@ -55,10 +55,10 @@ make segment-all-par
 ```
 Because the parallelized version runs multiple processes, the overhead of the initial load of the neural model is multiplied by the number of cores avialable on the machine (the `parallel` default).  Parallelization appears to improve performance only at lower core counts.
 
-### OCR
+### Recognition
 ```bash
 make ocr-all
 ```
-This target will run kraken's OCR over the segmented images, again yielding ALTO XML files, this time containing `<CONTENT>` elements.
+This target will run kraken's OCR over the segmented images, again yielding ALTO XML files, this time containing `<CONTENT>` elements.  The filenames of the output end in `-rec.xml`.
 
 
