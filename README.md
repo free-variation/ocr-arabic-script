@@ -6,9 +6,46 @@ Experiments in OCR for historical texts written in Arabic script.
  * GNU gawk
  * A working Python3 environment
  * pip
+ * (Optional) GNU parallel, for running kraken operations in parallel, which may be somewhat faster than kraken batched operations on multicore machines with lower core counts and no GPU.
 
 ## Installation
 ```bash
 make deps
 ```
+
+## Configuration
+The system is configured via environment variables set in a local, non-versisoned file `./config`
+
+### PyTorch device
+To point to a GPU, set for example
+```bash
+DEVICE=cuda:0
+```
+The default device is `cpu`.
+
+## Test Runs
+
+### Binarization
+```bash
+make binarize-all
+```
+This will binarie all the images in `data/fas`, yielding image files ending in `-bin.png`
+
+Optionally, use the parallelized version of this target:
+```bash
+make binarize-all-par
+```
+
+### Segmentation
+```bash
+make segment-all
+```
+This will segment all the binaried images in `data/fas`, yielding ALTO XML files ending in `-seg.xml`
+
+Optionally, use the parallelized version of this target:
+```bash
+make segment-all-par
+```
+Because the parallelized version runs multiple processes, the overhead of the initial load of the neural model is multiplied by the number of cores avialable on the machine (the `parallel` default).  Parallelization appears to improve performance only at lower core counts.
+
 
