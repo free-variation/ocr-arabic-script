@@ -4,9 +4,10 @@ Experiments in OCR for historical texts written in Arabic script.
 ## Prerequisites
  * GNU Make
  * GNU gawk
+ * xmllint, part of the libxml2-utils package.
  * A working Python3 environment
  * pip
- * (Optional) GNU parallel, for running kraken operations in parallel, which may be somewhat faster than kraken batched operations on multicore machines with lower core counts and no GPU.
+ * GNU parallel, for running kraken operations in parallel, which may be somewhat faster than kraken batched operations on multicore machines with lower core counts and no GPU.
 
 ## Installation
 ```bash
