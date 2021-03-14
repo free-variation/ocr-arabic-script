@@ -20,7 +20,7 @@ install-python-libs:
 
 install-eval-tools:
 	rm -rf ocr-evaluation-tools
-	git clone https://github.com/free-variation/ocr-evaluation-tools.git
+	git clone https://github.com/Shreeshrii/ocr-evaluation-tools.git
 	cd ocr-evaluation-tools; make PREFIX=.. install
 	rm -rf ocr-evaluation-tools
 	
