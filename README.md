@@ -4,9 +4,10 @@ Experiments in OCR for historical texts written in Arabic script.
 ## Prerequisites
  * GNU Make
  * GNU gawk
+ * mmv utility
  * xmllint, part of the libxml2-utils package.
  * A working Python3 environment
- * pip
+ * pip, updated to latest.
  * GNU parallel, for running kraken operations in parallel, which may be somewhat faster than kraken batched operations on multicore machines with lower core counts and no GPU.
 
 ## Installation
@@ -68,3 +69,18 @@ Optionally, use the parallelized version of this target:
 make ocr-all-par
 ```
 Same caveats apply.
+
+## Evaluation
+```bash
+make extract-gold-all
+make create-eval-dirs
+make eval-all
+```
+These final steps will construct the evaluation datasets and run programs in `./bin` that yield a character accuracy report in `report.txt`
+
+## Everything
+To run the entire sequence, including installation of dependencies:
+```bash
+make go
+```
+And wait.
