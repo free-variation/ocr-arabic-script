@@ -38,7 +38,7 @@ The default is `1'.
 ```bash
 make binarize-all
 ```
-This will binarie all the images in `data/fas`, yielding image files ending in `-bin.png`
+This will binarize all the images in `data/fas`, yielding image files ending in `-bin.png`
 
 Optionally, use the parallelized version of this target:
 ```bash
