@@ -2,6 +2,7 @@
 
 DEVICE ?= cpu
 NUM_THREADS ?= 1
+SEG_MODEL ?= models/cBAD_27.mlmodel
 
 ifeq (, $(shell which gawk))
 $(error "Please install gawk.")
@@ -43,7 +44,7 @@ segment-all:
 	find data/fas -name '*-seg.xml' | parallel xmllint -o {} --format {}  
 
 segment-all-par: 
-	find data/fas -name '*-bin.png' | parallel kraken -i {} {.}-seg.xml -f image -a segment --model models/cBAD_27.mlmodel -bl --text-direction horizontal-rl --pad 0 0
+	find data/fas -name '*-bin.png' | parallel kraken -i {} {.}-seg.xml -f image -a segment --model ${SEG_MODEL} -bl --text-direction horizontal-rl --pad 0 0
 	sh scripts/fix_paths.sh data/fas/*-seg.xml  
 	find data/fas -name '*-seg.xml' | parallel xmllint -o {} --format {}  
 
@@ -65,5 +66,8 @@ create-eval-dirs:
 
 eval-all:
 	sh scripts/evalOCR.sh -p -s -n d1 d2 report.txt
+
+eval-google:
+	sh scripts/evalOCR.sh -p -s -n d1 google-ocr g-report.txt
 
 go: deps binarize-all-par segment-all-par ocr-all-par extract-gold-all create-eval-dirs eval-all
