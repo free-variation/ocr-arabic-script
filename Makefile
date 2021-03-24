@@ -15,6 +15,10 @@ ifeq (, $(shell which parallel))
 $(error "Please install GNU parallel.")
 endif
 
+ifeq (, $(shell which mmv))
+$(error "Please install the mmv utilities.")
+endif
+
 install-python-libs: 
 	pip install -r requirements.txt
 
@@ -44,10 +48,22 @@ segment-all-par:
 	find data/fas -name '*-seg.xml' | parallel xmllint -o {} --format {}  
 
 ocr-all: 
-	kraken -I data/fas/'*-seg.xml' -o '-rec.xml' -a -f alto -d ${DEVICE} ocr -m models/arabPersPrBigMixed_best.mlmodel --reorder --text-direction horizontal-tb --threads ${NUM_THREADS}
+	kraken -I data/fas/'*-seg.xml' -o '-rec.xml' -n -f alto -d ${DEVICE} ocr -m models/arabPersPrBigMixed_best.mlmodel --reorder --text-direction horizontal-tb --threads ${NUM_THREADS}
 	find data/fas -name '*-rec.xml' | parallel xmllint -o {} --format {}  
 
 ocr-all-par: 
-	find data/fas -name '*-seg.xml' | parallel kraken -i {} {.}-rec.xml -a -f alto -d ${DEVICE} ocr -m models/arabPersPrBigMixed_best.mlmodel --reorder --text-direction horizontal-tb --threads 1
-	find data/fas -name '*-rec.xml' | parallel xmllint -o {} --format {}  
+	find data/fas -name '*-seg.xml' | parallel kraken -i {} {.}-rec.txt -n -f alto -d ${DEVICE} ocr -m models/arabPersPrBigMixed_best.mlmodel --reorder --text-direction horizontal-tb --threads 1
 
+extract-gold-all:
+	find data/fas -name '*[0-9].xml' | parallel ./scripts/extract_gold.awk {} 
+
+create-eval-dirs:
+	rm -rf d1 d2
+	mkdir -p d1 d2
+	mcp 'data/fas/*-bin-seg-rec.txt' 'd2/#1.rec.txt'	
+	mcp 'data/fas/*-gold.txt' 'd1/#1.gt.txt'
+
+eval-all:
+	sh scripts/evalOCR.sh -p -s -n d1 d2 report.txt
+
+go: deps binarize-all-par segment-all-par ocr-all-par extract-gold-all create-eval-dirs eval-all
