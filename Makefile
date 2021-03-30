@@ -32,6 +32,9 @@ install-eval-tools:
 
 deps: install-python-libs install-eval-tools
 
+
+# Run OCR over sample files
+
 binarize-all: 
 	kraken -I data/fas/'*[0-9].png' -o '-bin.png' -f image -d ${DEVICE} binarize
 
@@ -71,3 +74,14 @@ eval-google:
 	sh scripts/evalOCR.sh -p -s -n d1 google-ocr g-report.txt
 
 go: deps binarize-all-par segment-all-par ocr-all-par extract-gold-all create-eval-dirs eval-all
+
+
+# Corpus construction
+download-openITI:
+	rm -rf corpora/openITI
+	git clone https://github.com/OpenITI/RELEASE corpora/openITI
+
+build-openITI-corpus: 
+	find corpora/openITI -name '*-ara1' | xargs cat > corpora/iti.txt
+
+
