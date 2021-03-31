@@ -82,6 +82,12 @@ download-openITI:
 	git clone https://github.com/OpenITI/RELEASE corpora/openITI
 
 build-openITI-corpus: 
-	find corpora/openITI -name '*-ara1' | xargs cat > corpora/iti.txt
+	find corpora/openITI -name '*-ara1' | parallel python scripts/clean_openiti.py {} > corpora/openiti.txt
 
+download-pdl:
+	rm -rf corpora/pdl
+	git clone https://github.com/PersDigUMD/CorpusCSV.git corpora/pdl
 
+build-pdl-corpus:
+	cat corpora/pdl/*.csv > corpora/pdl/all.txt
+	gawk 'BEGIN {FS="\t"} !/urn:/ {print $$3}' corpora/pdl/all.txt > corpora/pdl.txt
