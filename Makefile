@@ -91,3 +91,5 @@ download-pdl:
 build-pdl-corpus:
 	cat corpora/pdl/*.csv > corpora/pdl/all.txt
 	gawk 'BEGIN {FS="\t"} !/urn:/ {print $$3}' corpora/pdl/all.txt > corpora/pdl.txt
+
+build-corpora: download-openITI build-openITI-corpus download-pdl build-pdl-corpus
