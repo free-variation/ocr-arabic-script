@@ -3,4 +3,6 @@ transformers
 sentencepiece
 datasets
 tensorboardx
+jupyter
+jupyter-tensorboard
 
