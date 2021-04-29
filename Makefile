@@ -93,3 +93,8 @@ build-pdl-corpus:
 	gawk 'BEGIN {FS="\t"} !/urn:/ {print $$3}' corpora/pdl/all.txt > corpora/pdl.txt
 
 build-corpora: download-openITI build-openITI-corpus download-pdl build-pdl-corpus
+
+
+
+nb:
+	jupyter notebook --NotebookApp.token='' --no-browser

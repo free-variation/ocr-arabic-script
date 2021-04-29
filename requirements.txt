@@ -1,1 +1,6 @@
 git+https://github.com/mittagessen/kraken@master#egg=kraken
+transformers
+sentencepiece
+datasets
+tensorboardx
+

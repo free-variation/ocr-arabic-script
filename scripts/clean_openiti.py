@@ -1,3 +1,4 @@
+import sys
 import re
 from functools import partial
 
@@ -37,7 +38,6 @@ def clean(lines):
             (_clean(line) for line in lines) 
             if _has_arabic(cleaned_line))
 
-import sys
 if __name__ == '__main__':
 
     for filename in sys.argv[1:]:
