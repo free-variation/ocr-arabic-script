@@ -2,7 +2,9 @@ git+https://github.com/mittagessen/kraken@master#egg=kraken
 transformers
 sentencepiece
 datasets
-tensorboardx
+tensorboard
+tensorboardX
 jupyter
 jupyter-tensorboard
-
+fastwer
+scikit-learn
