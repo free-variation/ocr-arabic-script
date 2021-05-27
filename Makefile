@@ -20,6 +20,10 @@ ifeq (, $(shell which mmv))
 $(error "Please install the mmv utilities.")
 endif
 
+ifeq (, $(shell which shuf))
+$(error "Please install shuf, in the package coreutils.")
+endif
+
 install-python-libs: 
 	pip install -r requirements.txt
 
