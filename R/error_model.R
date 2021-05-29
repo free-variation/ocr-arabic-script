@@ -83,9 +83,11 @@ basic_error_model = function(errors, char_counts) {
   }
 
   perturb = function(c) {
+    if (c == ' ') return(c)
+
     roll = runif(1)
 
-    if (roll <= edit_probs[1]) paste(c, pick_char(), sep='')
+    if (roll <= edit_probs[1]) paste(pick_char(), c, sep='')
     else if (roll <= edit_probs[2]) pick_char()
     else if (roll <= edit_probs[3]) ''
     else c
