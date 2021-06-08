@@ -1,7 +1,8 @@
 library(purrr)
 library(stringr)
 library(tidyverse)
-
+library(here)
+library(glue)
 
 pull_result = function(output, key) {
   output[grep(key, output)] %>% trimws %>% str_split(' +') %>% unlist
@@ -107,10 +108,33 @@ perturb_text = function(in_file, out_file, perturb) {
     if (length(line) == 0) break
 
     perturbed_line = perturb(line)
-    writeLines(perturbed_line, con2)
+
+    if (line != '' & perturbed_line != '')
+      writeLines(paste(line, perturbed_line, sep = '\t'), con2)
   }
 
   close(con1)
   close(con2)
 }
 
+
+create_error_dataset = function(dirname, fname) {
+  gt_files = list.files(path = here(dirname),
+                        pattern = "*gt*.txt",
+                        recursive = TRUE)
+
+  rec_files = str_replace(gt_files, "\\.gt\\.", ".rec.")
+
+  merge_fn = function(gt_file, rec_file) {
+    gt_lines = read_lines(here(dirname, gt_file))
+    rec_lines = read_lines(here(dirname, rec_file))
+
+    c(gt_lines, rec_lines)
+  }
+
+  lines = map2(gt_files, rec_files, merge_fn) %>% unlist %>% matrix(byrow = TRUE, ncol = 2)
+
+  write.table(lines, here(fname), quote = FALSE, sep = '\t', col.names = FALSE, row.names=FALSE)
+
+  lines
+}
