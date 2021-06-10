@@ -134,7 +134,36 @@ create_error_dataset = function(dirname, fname) {
 
   lines = map2(gt_files, rec_files, merge_fn) %>% unlist %>% matrix(byrow = TRUE, ncol = 2)
 
+  # TODO jds normalize the text after writing it out.
   write.table(lines, here(fname), quote = FALSE, sep = '\t', col.names = FALSE, row.names=FALSE)
 
   lines
+}
+
+align_strings = function(str1, str2) {
+  tmpf1 = here('tmp', 's1')
+  tmpf2 = here('tmp', 's2')
+  writeLines(str1, tmpf1)
+  writeLines(str2, tmpf2)
+
+  ret = system2(here('scripts', 'align.sh'), c(tmpf1, tmpf2),
+                stdout = TRUE, env = 'PATH=$PATH:./bin')
+  template = ret[3]
+
+  m = matrix(ret[5:(length(ret) - 1)], byrow=TRUE, ncol=4)
+  a = str_extract(m[,3], '\\{.*\\}')
+  a = substr(a, 2, nchar(a) - 1)
+
+  b = str_extract(m[,4], '\\{.*\\}')
+  b = substr(b, 2, nchar(b) - 1)
+
+  list(template = template,
+       a = a,
+       b = b)
+
+  ret
+}
+
+create_ngram_error_model = function(aligns, ngram_len = 2) {
+
 }

@@ -86,7 +86,7 @@ download-openITI:
 	git clone https://github.com/OpenITI/RELEASE corpora/openITI
 
 build-openITI-corpus: 
-	find corpora/openITI -name '*-ara1' | parallel python scripts/clean_openiti.py {} > corpora/openiti.txt
+	find corpora/openITI -name '*-ara1' | parallel python scripts/clean_openiti.py {} | python scripts/normalize_ar.py > corpora/openiti.txt
 
 download-pdl:
 	rm -rf corpora/pdl
