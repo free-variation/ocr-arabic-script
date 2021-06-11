@@ -3,6 +3,7 @@ library(stringr)
 library(tidyverse)
 library(here)
 library(glue)
+library(slider)
 
 pull_result = function(output, key) {
   output[grep(key, output)] %>% trimws %>% str_split(' +') %>% unlist
@@ -134,7 +135,7 @@ create_error_dataset = function(dirname, fname) {
 
   lines = map2(gt_files, rec_files, merge_fn) %>% unlist %>% matrix(byrow = TRUE, ncol = 2)
 
-  # TODO jds normalize the text after writing it out.
+  # TODO jds normalize the text after writing it out, just in case...
   write.table(lines, here(fname), quote = FALSE, sep = '\t', col.names = FALSE, row.names=FALSE)
 
   lines
@@ -164,6 +165,49 @@ align_strings = function(str1, str2) {
   ret
 }
 
-create_ngram_error_model = function(aligns, ngram_len = 2) {
+atomize_template = function(s) {
+  i = 1
+  head = substr(s, i, i)
+
+  if (head == '{') {
+    while (substr(s, i, i) != '}') i = i + 1
+    idx = as.integer(substr(s, 2, i - 1))
+    atom = function(subs) subs[idx]
+  } else {
+    atom = function(subs) head
+  }
+
+  if (nchar(s) > 1)
+    c(atom, atomize_template(substr(s, i + 1, nchar(s))))
+  else
+    atom
+}
+
+alignment_to_pairs = function(align, .ngram_size = 2) {
+  ngram_to_pair = function(ngram) {
+    s1 = map_chr(ngram, ~.(align$a)) %>% paste(collapse = '')
+    s2 = map_chr(ngram, ~.(align$b)) %>% paste(collapse = '')
+
+    c(s1, s2)
+  }
+
+  ngrams = atomize_template(align$template)
+  slide(ngrams, .f = ngram_to_pair, .after = .ngram_size -1 , .complete = TRUE) %>%
+    unlist %>% matrix(byrow = TRUE, ncol = 2)
+}
+
+create_ngram_error_model = function(aligns, ngram_size = 2) {
+  pairs = map(aligns, ~alignment_to_pairs(.x, .ngram_size = ngram_size))
+  pairs = as.data.frame(do.call(rbind, pairs))
+  names(pairs) = c('a', 'b')
+
+  froms = unique(pairs[,1])
+  tos = map(froms, ~subset(pairs, a == .x)$b)
+  error_model = tibble(a = froms, b = tos)
+
+  error_model
+}
+
+perturb_string = function(error_model) {
 
 }
