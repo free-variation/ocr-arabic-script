@@ -1,5 +1,6 @@
 import sys
 import re
+import unicodedata as ud
 from functools import partial
 
 def clean(lines):
@@ -43,4 +44,5 @@ if __name__ == '__main__':
     for filename in sys.argv[1:]:
         with open(filename, 'r') as f:
             for arabic_line in clean(f):
-                print(arabic_line)
+                # Applying canonical decomposition normalization form
+                print(ud.normalize('NFD',arabic_line))

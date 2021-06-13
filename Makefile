@@ -20,6 +20,10 @@ ifeq (, $(shell which mmv))
 $(error "Please install the mmv utilities.")
 endif
 
+ifeq (, $(shell which shuf))
+$(error "Please install shuf, in the package coreutils.")
+endif
+
 install-python-libs: 
 	pip install -r requirements.txt
 
@@ -82,7 +86,7 @@ download-openITI:
 	git clone https://github.com/OpenITI/RELEASE corpora/openITI
 
 build-openITI-corpus: 
-	find corpora/openITI -name '*-ara1' | parallel python scripts/clean_openiti.py {} > corpora/openiti.txt
+	find corpora/openITI -name '*-ara1' | parallel python scripts/clean_openiti.py {} | python scripts/normalize_ar.py > corpora/openiti.txt
 
 download-pdl:
 	rm -rf corpora/pdl
@@ -94,7 +98,8 @@ build-pdl-corpus:
 
 build-corpora: download-openITI build-openITI-corpus download-pdl build-pdl-corpus
 
-
+sample-characters:
+	shuf -n 1000000 corpora/openiti.txt | fold -w1 | sort | uniq -c > corpora/char_counts.txt
 
 nb:
 	jupyter notebook --NotebookApp.token='' --no-browser
