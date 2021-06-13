@@ -132,8 +132,8 @@ alter_string = function(s, error_model) {
 }
 
 create_error_model = function(ngram_size = 1) {
-  y = create_error_dataset('tmp', 'data/error_dataset.tsv')
-  alignments = map2(y[,1], y[,2], align_strings)
+  y = read.table('data/error_dataset.tsv', quote = '', sep = '\t')
+  alignments = map2(y[,1], y[,2], align_string)
   build_edit_model(alignments, ngram_size, 5, 5)
 }
 
@@ -150,4 +150,11 @@ alter_text = function(strings, error_model) {
   stopCluster(cluster)
 
   perturbed_lines
+}
+
+go = function(infile, outfile) {
+  e1 = create_error_model()
+  lines = readLines(infile)
+  perturbed_lines = alter_text(lines, e1)
+  writeLines(perturbed_lines, outfile)
 }
