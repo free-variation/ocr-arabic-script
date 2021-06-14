@@ -132,22 +132,54 @@ alter_string = function(s, error_model) {
 }
 
 create_error_model = function(ngram_size = 1) {
-  y = create_error_dataset('tmp', 'data/error_dataset.tsv')
-  alignments = map2(y[,1], y[,2], align_strings)
+  y = read.table('data/error_dataset.tsv', quote = '', sep = '\t')
+  alignments = map2(y[,1], y[,2], align_string)
   build_edit_model(alignments, ngram_size, 5, 5)
 }
 
+library(progressr)
+registerDoFuture()
+
+handlers(global = TRUE)
+handlers("progress")
+
 alter_text = function(strings, error_model) {
-  cluster = makeCluster(12)
+  cluster = makeCluster(ceiling(parallel::detectCores() * 0.9))
   registerDoParallel(cluster)
 
+  progress = progressor(along = strings)
   perturbed_lines = foreach(i = 1:length(strings),
                             .export = c('alter_string'),
                             .packages = c('dplyr', 'purrr')) %dopar% {
     alter_string(strings[i], error_model)
+    progress()
   }
 
   stopCluster(cluster)
 
   perturbed_lines
+}
+
+save_error_dataset = function(strings, altered_strings, fname) {
+  outcon = file(here(fname), 'w')
+
+  for (i in 1:length(strings)) {
+    if (strings[i] == '' | altered_strings[i] == '') next
+
+    writeLines(glue('{strings[i]}\t{altered_strings[i]'), con = outcon)
+  }
+
+  close(outcon)
+}
+
+go = function(infile, outfile) {
+  e1 = create_error_model()
+
+  lines = readLines(infile)
+  len_lines = map_int(lines, nchar)
+  lines = lines[len_lines <= 500]
+
+  perturbed_lines = alter_text(lines, e1)
+
+  writeLines(perturbed_lines, outfile)
 }
