@@ -137,22 +137,15 @@ create_error_model = function(ngram_size = 1) {
   build_edit_model(alignments, ngram_size, 5, 5)
 }
 
-library(progressr)
-registerDoFuture()
-
-handlers(global = TRUE)
-handlers("progress")
 
 alter_text = function(strings, error_model) {
   cluster = makeCluster(ceiling(parallel::detectCores() * 0.9))
   registerDoParallel(cluster)
 
-  progress = progressor(along = strings)
   perturbed_lines = foreach(i = 1:length(strings),
                             .export = c('alter_string'),
                             .packages = c('dplyr', 'purrr')) %dopar% {
     alter_string(strings[i], error_model)
-    progress()
   }
 
   stopCluster(cluster)
@@ -160,19 +153,19 @@ alter_text = function(strings, error_model) {
   perturbed_lines
 }
 
-save_error_dataset = function(strings, altered_strings, fname) {
+save_altered_text = function(strings, altered_strings, fname) {
   outcon = file(here(fname), 'w')
 
   for (i in 1:length(strings)) {
     if (strings[i] == '' | altered_strings[i] == '') next
 
-    writeLines(glue('{strings[i]}\t{altered_strings[i]'), con = outcon)
+    writeLines(glue('{strings[i]}\t{altered_strings[i]}'), con = outcon)
   }
 
   close(outcon)
 }
 
-go = function(infile, outfile) {
+create_training_dataset = function(infile, outfile) {
   e1 = create_error_model()
 
   lines = readLines(infile)
@@ -181,5 +174,5 @@ go = function(infile, outfile) {
 
   perturbed_lines = alter_text(lines, e1)
 
-  writeLines(perturbed_lines, outfile)
+  save_altered_text(lines, perturbed_lines, outfile)
 }

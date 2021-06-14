@@ -22,5 +22,5 @@ noise = re.compile(""" ّ    | # Tashdīd / Shadda
 if __name__ == '__main__':
     for line in sys.stdin:
         normalized_line = unicodedata.normalize('NFKC', re.sub(noise, '', line))
-        print(ud.normalize('NFD', normalized_line), end = '')
+        print(unicodedata.normalize('NFD', normalized_line), end = '')
 

@@ -102,4 +102,4 @@ sample-characters:
 	shuf -n 1000000 corpora/openiti.txt | fold -w1 | sort | uniq -c > corpora/char_counts.txt
 
 nb:
-	jupyter notebook --NotebookApp.token='' --no-browser
+	jupyter notebook --NotebookApp.token='' --no-browser --ip='0.0.0.0'
